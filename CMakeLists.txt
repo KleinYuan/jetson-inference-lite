@@ -86,9 +86,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_OUTPUT_DIR}/lib)
 include_directories(${PROJECT_INCLUDE_DIR} ${PROJECT_INCLUDE_DIR}/jetson-stream-lite ${PROJECT_INCLUDE_DIR}/jetson-utils)
 include_directories(/usr/include/gstreamer-1.0 /usr/lib/aarch64-linux-gnu/gstreamer-1.0/include /usr/include/glib-2.0 /usr/include/libxml2 /usr/lib/aarch64-linux-gnu/glib-2.0/include/)
 
-file(GLOB inferenceSources c/*.cpp c/*.cu calibration/*.cpp)
-file(GLOB inferenceIncludes c/*.h c/*.cuh calibration/*.h)
-	
+file(GLOB inferenceSources src/c/*.cpp src/c/*.cu src/calibration/*.cpp)
+file(GLOB inferenceIncludes src/c/*.h src/c/*.cuh src/calibration/*.h)
+file(GLOB pluginSources plugins/*.cpp plugins/*.cu)
+
 cuda_add_library(jetson-stream-lite SHARED ${inferenceSources} ${pluginSources})
 
 
@@ -105,7 +106,6 @@ endforeach()
 # build subdirectories
 add_subdirectory(utils)
 add_subdirectory(app)
-add_subdirectory(src)
 
 
 # set linker options
