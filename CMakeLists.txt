@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 2.8)
-project(jetson-stream-lite)
+project(jetson-inference-lite)
 
 # submodule warning
 message(" ")
@@ -83,22 +83,22 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_OUTPUT_DIR}/lib)
 
 
 # build C/C++ library
-include_directories(${PROJECT_INCLUDE_DIR} ${PROJECT_INCLUDE_DIR}/jetson-stream-lite ${PROJECT_INCLUDE_DIR}/jetson-utils)
+include_directories(${PROJECT_INCLUDE_DIR} ${PROJECT_INCLUDE_DIR}/jetson-inference-lite ${PROJECT_INCLUDE_DIR}/jetson-utils)
 include_directories(/usr/include/gstreamer-1.0 /usr/lib/aarch64-linux-gnu/gstreamer-1.0/include /usr/include/glib-2.0 /usr/include/libxml2 /usr/lib/aarch64-linux-gnu/glib-2.0/include/)
 
 file(GLOB inferenceSources src/c/*.cpp src/c/*.cu src/calibration/*.cpp)
 file(GLOB inferenceIncludes src/c/*.h src/c/*.cuh src/calibration/*.h)
 file(GLOB pluginSources plugins/*.cpp plugins/*.cu)
 
-cuda_add_library(jetson-stream-lite SHARED ${inferenceSources} ${pluginSources})
+cuda_add_library(jetson-inference-lite SHARED ${inferenceSources} ${pluginSources})
 
 
 # transfer all headers to the include directory
-file(MAKE_DIRECTORY ${PROJECT_INCLUDE_DIR}/jetson-stream-lite)
+file(MAKE_DIRECTORY ${PROJECT_INCLUDE_DIR}/jetson-inference-lite)
 
 foreach(include ${inferenceIncludes})
 	message("-- Copying ${include}")
-	configure_file(${include} ${PROJECT_INCLUDE_DIR}/jetson-stream-lite COPYONLY)
+	configure_file(${include} ${PROJECT_INCLUDE_DIR}/jetson-inference-lite COPYONLY)
 endforeach()
 
 
@@ -109,21 +109,21 @@ add_subdirectory(app)
 
 
 # set linker options
-target_link_libraries(jetson-stream-lite jetson-utils nvinfer nvinfer_plugin nvcaffe_parser)
+target_link_libraries(jetson-inference-lite jetson-utils nvinfer nvinfer_plugin nvcaffe_parser)
 
 if(CUDA_VERSION_MAJOR GREATER 9)
-	target_link_libraries(jetson-stream-lite nvonnxparser)
+	target_link_libraries(jetson-inference-lite nvonnxparser)
 
     if(HAS_OPENCV) 
-        message("-- Linking jetson-stream-lite with OpenCV " ${OpenCV_VERSION})
-        target_link_libraries(jetson-stream-lite opencv_core opencv_calib3d)
+        message("-- Linking jetson-inference-lite with OpenCV " ${OpenCV_VERSION})
+        target_link_libraries(jetson-inference-lite opencv_core opencv_calib3d)
     endif()
 endif()
 
 
 # install includes
 foreach(include ${inferenceIncludes})
-    install(FILES "${include}" DESTINATION include/jetson-stream-lite)
+    install(FILES "${include}" DESTINATION include/jetson-inference-lite)
 endforeach()
 
 # install symlink to networks and images
@@ -131,10 +131,10 @@ install(CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJ
 install(CODE "execute_process( COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/data/images ${CMAKE_INSTALL_PREFIX}/bin/images )" )
 
 # install the shared library
-install(TARGETS jetson-stream-lite DESTINATION lib EXPORT jetson-stream-liteConfig)
+install(TARGETS jetson-inference-lite DESTINATION lib EXPORT jetson-inference-liteConfig)
 
 # install the cmake project, for importing
-install(EXPORT jetson-stream-liteConfig DESTINATION share/jetson-stream-lite/cmake)
+install(EXPORT jetson-inference-liteConfig DESTINATION share/jetson-inference-lite/cmake)
 
 # run ldconfig after installing
 install(CODE "execute_process( COMMAND ldconfig )")
